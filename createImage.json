@@ -1,0 +1,44 @@
+{
+
+  "variables": {
+    "my_source_ami": "ami-0b898040803850657",
+    "region": "us-east-1",
+    "uuid": ""
+   },
+    
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "region": "{{ user `region` }}",
+            "source_ami": "{{ user `my_source_ami` }}",
+            "instance_type": "t2.micro",
+            "ssh_username": "ec2-user",
+            "ami_name": "FrontEnd-{{isotime | clean_ami_name}}",
+            "ami_description": "Amazon AMI Golden Image",
+            "tags": {
+                "owner": "ehsan",
+                "uuid": "{{ user `uuid` }}"
+            },
+            "run_tags": {
+                "role": "buildsystem"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "script": "provScripts/installCodeDeploy.sh"
+        },
+	    {
+            "type":        "file",
+            "source":      "target/myproject-0.0.1-SNAPSHOT.war",
+            "destination": "/tmp/"
+        },
+        {
+            "type": "shell",
+            "script": "provScripts/installTomcat.sh"
+        }
+    ]
+
+
+}
